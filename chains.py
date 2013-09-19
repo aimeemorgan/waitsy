@@ -1,22 +1,53 @@
-from random import randint
+from random import choice
+from config import source, db
 
 # read source file into a giant string
 # leave or strip punctuation and newlines?
 def get_text():
-	# return source
-	pass
+	f_open = open(source)
+	text = (f_open.read()).strip()
+	return text
 
 # build dict of tuples, list of words
-def make_chains(source):
+def make_chains(text):
+	chains = {}
+	for i in range(len(text)-2):
+		key = (text[i], text[i+1])
+		chains.setdefault(key, [])
+		chains[key].append(text[i+2])
+	return chains
+
+#persist chains in redis?
+def persist_chains(chains):
+	index = []
+	for key, value in chains:
+		index.append[key]
+		#redis.key = value
+	return "Chains saved in redis"
+
+# load chains into memory from redis
+def load_chains():
 	chains = {}
 	return chains
 
 # build a line for new lyric
 # cap length at what?
-def build_line():
+def build_line(chains):
 	# pick a random tuple from dict to start
-	# return line
-	pass
+	line = []
+	pair = choice(chains.keys())
+	for word in pair:
+		line.append(word)
+	next_word = choice(chains[pair])
+	line.append(next_word)
+	while len(line) <= 10:
+		pair = (pair[1], next_word)
+		next_word = choice(chains[pair])
+		line.append(next_word)
+	line.append('\n')
+	' '.join(line)
+	line[0] = line[0].capitalize()
+	return line
 
 # build a stanza from lines
 # stanza = list of strings
@@ -30,11 +61,11 @@ def build_stanza():
 # build a song from multiple stanzas
 # pass a list of list of strings to controller: 3 verses and chorus
 def build_song():
-	song = []
 	verse1 = build_stanza()
 	verse2 = build_stanza()
 	verse3 = build_stanza()
 	chorus = build_stanza()
+	song = [verse1, verse2, verse3, chorus]
 	return song
 
 # to do: allow for verses, chorus, lines of varying length
